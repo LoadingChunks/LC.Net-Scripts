@@ -1,0 +1,37 @@
+#!/bin/bash
+# Startup script, just make sure you include a start.cfg with the following:
+# SCREEN_NAME=name_here - Used to identify the Screen session name.
+# SCRIPT_PATH=path_here - The path to your Minecraft Server (contains this script too)
+
+if [ ! -e start.cfg ]
+        then echo "Startup Config Missing, aborting!"
+        exit 0;
+fi
+
+source start.cfg
+
+cd $SCRIPT_PATH
+
+if [ ! -e /home/minecraftd/worlds/backup.txt ]
+        then echo "Worlds not mounted, aborting!"
+        exit 0;
+fi
+
+case "$1" in
+        "start") screen -A -m -d -S $SCREEN_NAME java -Xms4096M -Xmx4096M -server -d64 -jar $SCRIPT_PATH/craftbukkit.jar nogui;;
+        "kill")  ps aux | grep -v grep | grep $SCREEN_NAME | head -n 1 | cut -c 1-5 | kill;;
+
+        "stop")
+                screen -S $SCREEN_NAME -p 0 -X stuff "`printf "save-all\r"`"
+                screen -S $SCREEN_NAME -p 0 -X stuff "`printf "say Server stop in 5 seconds, twitter.com/loadingchunks\r"`"
+                sleep 5
+                screen -S $SCREEN_NAME -p 0 -X stuff "`printf "stop\r"`";;
+
+        "attach") screen -x $SCREEN_NAME;;
+
+        "cmd") screen -S $SCREEN_NAME -p 0 -X stuff "`printf "$2\r"`";;
+
+        "save-off") screen -S $SCREEN_NAME -p 0 -X stuff "`printf "save-off\r"`";;
+        "save-on") screen -S $SCREEN_NAME -p 0 -X stuff "`printf "save-on\r"`";;
+        "save-all") screen -S $SCREEN_NAME -p 0 -X stuff "`printf "save-all\r"`";;
+esac
