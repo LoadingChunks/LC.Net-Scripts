@@ -1,0 +1,76 @@
+ADDONS=/home/gamecreate/garrysmod/addons/*.gma
+FASTDL=/home/gamecreate/domains/dl.loadingchunks.net/public_html/gmod
+SOURCERSC=/home/gamecreate/sourcersc
+
+#cd /home/gamecreate/domains/dl.loadingchunks.net/public_html/gmod/
+cd /home/gamecreate/tmp/
+
+for f in $ADDONS
+do
+        file="${f##*/}"
+        filename="${file%.*}"
+        mkdir -p $filename
+        cd $filename
+        echo "Extracting $f"
+        /home/gamecreate/bin/extract-gma $f
+
+        if [ -d "maps" ]; then
+                echo "Compressing Maps..."
+                cd maps
+                for f in *.bsp
+                do
+                        echo "Compressing $f"
+                        bzip2 -c -9 $f > $f.bz2
+                        echo "Copying $f"
+                        cp $f.bz2 $FASTDL/maps/
+
+                        if [ -f "*.png" ]; then
+                                cp *.png $FASTDL/maps/
+                        fi
+
+                        echo ""
+                done
+                cd ../
+                echo "Done."
+                echo ""
+                echo ""
+        fi
+
+        if [ -d "lua" ]; then
+                echo "Compressing LUA..."
+                cd lua
+                find -exec bzip2 \{\} \;
+                cp -r * $FASTDL/lua/
+                cd ../
+                echo "Done."
+                echo ""
+                echo ""
+        fi
+
+        if [ -d "models" ]; then
+                echo "Compressing LUA..."
+                cd models
+                find -exec bzip2 \{\} \;
+                cp -r * $FASTDL/lua/
+                cd ../
+                echo "Done."
+                echo ""
+                echo ""
+        fi
+
+        if [ -d "materials" ]; then
+                echo "Compressing LUA..."
+                cd materials
+                find -exec bzip2 \{\} \;
+                cp -r * $FASTDL/lua/
+                cd ../
+                echo "Done."
+                echo ""
+                echo ""
+        fi
+
+        echo "----------"
+        echo ""
+
+        cd ../
+done
